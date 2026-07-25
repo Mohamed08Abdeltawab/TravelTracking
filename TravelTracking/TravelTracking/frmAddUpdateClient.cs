@@ -87,8 +87,7 @@ namespace TravelTracking
             txtPhoneNumber.Text = "";
             txtAddress.Text = "";
             txtNotes.Text = "";
-            cbCountries.SelectedIndex = 0;
-            cbVisaTypes.SelectedIndex = 2;
+            cbVisaTypes.SelectedIndex = cbVisaTypes.Items.Count > 2 ? 2 : -1;
             pbClientImage.Image = Resources.users_512;
             pbClientImage.ImageLocation = null;
             llRemoveImage.Visible = false;
@@ -369,6 +368,71 @@ namespace TravelTracking
             else
             {
                 errorProvider1.SetError(cbVisaTypes, null);
+            }
+        }
+
+        private void txtPhoneNumber_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = !char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar);
+        }
+
+        private void txtCountryFilter_TextChanged(object sender, EventArgs e)
+        {
+            string filterText = txtCountryFilter.Text.Trim();
+
+            DataTable dt = cbCountries.DataSource as DataTable;
+
+            if (dt == null)
+                return;
+
+            DataView dv = dt.DefaultView;
+
+            if (string.IsNullOrWhiteSpace(filterText))
+            {
+                dv.RowFilter = "";
+                cbCountries.SelectedIndex = -1;
+                cbCountries.DroppedDown = false;
+                return;
+            }
+
+            // حفظ الفلتر الحالي
+            string oldFilter = dv.RowFilter;
+
+            // تجربة الفلتر الجديد
+            dv.RowFilter = $"Name LIKE '{filterText.Replace("'", "''")}%'";
+
+            if (dv.Count > 0)
+            {
+                cbCountries.DroppedDown = true;
+            }
+            else
+            {
+                // الرجوع للفلتر السابق
+                dv.RowFilter = oldFilter;
+
+                // حذف آخر حرف كتبه المستخدم
+                txtCountryFilter.Text = filterText.Substring(0, filterText.Length - 1);
+                txtCountryFilter.SelectionStart = txtCountryFilter.Text.Length;
+            }
+        }
+
+        private void txtCountryFilter_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (char.IsControl(e.KeyChar))
+                return;
+
+            string nextText = txtCountryFilter.Text + e.KeyChar;
+
+            if (cbCountries.DataSource is DataTable dt)
+            {
+                DataView dv = new DataView(dt);
+
+                dv.RowFilter = $"Name LIKE '{nextText.Replace("'", "''")}%'";
+
+                if (dv.Count == 0)
+                {
+                    e.Handled = true; // يمنع إدخال الحرف
+                }
             }
         }
     }

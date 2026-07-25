@@ -74,6 +74,7 @@
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.pictureBox8 = new System.Windows.Forms.PictureBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.txtCountryFilter = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbClientImage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox12)).BeginInit();
@@ -181,9 +182,9 @@
             this.label1.Location = new System.Drawing.Point(862, 144);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(91, 20);
+            this.label1.Size = new System.Drawing.Size(76, 20);
             this.label1.TabIndex = 160;
-            this.label1.Text = ":اسم المستخدم";
+            this.label1.Text = ":اسم العميل";
             // 
             // label2
             // 
@@ -288,10 +289,10 @@
             this.cbVisaTypes.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbVisaTypes.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbVisaTypes.FormattingEnabled = true;
-            this.cbVisaTypes.Location = new System.Drawing.Point(598, 194);
+            this.cbVisaTypes.Location = new System.Drawing.Point(601, 194);
             this.cbVisaTypes.Name = "cbVisaTypes";
             this.cbVisaTypes.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.cbVisaTypes.Size = new System.Drawing.Size(213, 28);
+            this.cbVisaTypes.Size = new System.Drawing.Size(210, 28);
             this.cbVisaTypes.TabIndex = 205;
             this.cbVisaTypes.Validating += new System.ComponentModel.CancelEventHandler(this.cbVisaTypes_Validating);
             // 
@@ -324,43 +325,44 @@
             // txtEmail
             // 
             this.txtEmail.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtEmail.Location = new System.Drawing.Point(598, 388);
+            this.txtEmail.Location = new System.Drawing.Point(601, 388);
             this.txtEmail.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtEmail.MaxLength = 50;
             this.txtEmail.Name = "txtEmail";
-            this.txtEmail.Size = new System.Drawing.Size(213, 26);
+            this.txtEmail.Size = new System.Drawing.Size(210, 26);
             this.txtEmail.TabIndex = 208;
             // 
             // txtPassword
             // 
             this.txtPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtPassword.Location = new System.Drawing.Point(598, 438);
+            this.txtPassword.Location = new System.Drawing.Point(601, 438);
             this.txtPassword.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtPassword.MaxLength = 50;
             this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Size = new System.Drawing.Size(213, 26);
+            this.txtPassword.Size = new System.Drawing.Size(210, 26);
             this.txtPassword.TabIndex = 209;
             // 
             // txtPassportNumber
             // 
             this.txtPassportNumber.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtPassportNumber.Location = new System.Drawing.Point(598, 338);
+            this.txtPassportNumber.Location = new System.Drawing.Point(601, 338);
             this.txtPassportNumber.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtPassportNumber.MaxLength = 50;
             this.txtPassportNumber.Name = "txtPassportNumber";
-            this.txtPassportNumber.Size = new System.Drawing.Size(213, 26);
+            this.txtPassportNumber.Size = new System.Drawing.Size(210, 26);
             this.txtPassportNumber.TabIndex = 210;
             this.txtPassportNumber.Validating += new System.ComponentModel.CancelEventHandler(this.txtPassportNumber_Validating_1);
             // 
             // txtPhoneNumber
             // 
             this.txtPhoneNumber.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtPhoneNumber.Location = new System.Drawing.Point(598, 241);
+            this.txtPhoneNumber.Location = new System.Drawing.Point(601, 241);
             this.txtPhoneNumber.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.txtPhoneNumber.MaxLength = 20;
             this.txtPhoneNumber.Name = "txtPhoneNumber";
-            this.txtPhoneNumber.Size = new System.Drawing.Size(213, 26);
+            this.txtPhoneNumber.Size = new System.Drawing.Size(210, 26);
             this.txtPhoneNumber.TabIndex = 213;
+            this.txtPhoneNumber.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtPhoneNumber_KeyPress);
             this.txtPhoneNumber.Validating += new System.ComponentModel.CancelEventHandler(this.txtPhoneNumber_Validating);
             // 
             // label13
@@ -568,12 +570,26 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
+            // txtCountryFilter
+            // 
+            this.txtCountryFilter.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtCountryFilter.Location = new System.Drawing.Point(485, 292);
+            this.txtCountryFilter.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.txtCountryFilter.MaxLength = 50;
+            this.txtCountryFilter.Name = "txtCountryFilter";
+            this.txtCountryFilter.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.txtCountryFilter.Size = new System.Drawing.Size(109, 26);
+            this.txtCountryFilter.TabIndex = 217;
+            this.txtCountryFilter.TextChanged += new System.EventHandler(this.txtCountryFilter_TextChanged);
+            this.txtCountryFilter.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtCountryFilter_KeyPress);
+            // 
             // frmAddUpdateClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
             this.ClientSize = new System.Drawing.Size(981, 499);
+            this.Controls.Add(this.txtCountryFilter);
             this.Controls.Add(this.llRemoveImage);
             this.Controls.Add(this.llSetImage);
             this.Controls.Add(this.pbClientImage);
@@ -685,5 +701,6 @@
         private System.Windows.Forms.LinkLabel llSetImage;
         private System.Windows.Forms.PictureBox pbClientImage;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private System.Windows.Forms.TextBox txtCountryFilter;
     }
 }

@@ -150,6 +150,7 @@ namespace TravelTracking
             this.dgvUsers.Size = new System.Drawing.Size(1306, 381);
             this.dgvUsers.TabIndex = 245;
             this.dgvUsers.TabStop = false;
+            this.dgvUsers.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvUsers_CellDoubleClick);
             // 
             // cmsClients
             // 

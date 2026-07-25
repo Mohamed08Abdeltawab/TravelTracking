@@ -247,8 +247,13 @@ namespace TravelTracking
 
         private void btnAddClient_Click(object sender, EventArgs e)
         {
-            frmAddUpdateClient frm = new frmAddUpdateClient();
-            frm.ShowDialog();
+            try
+            {
+                frmAddUpdateClient frm = new frmAddUpdateClient();
+                frm.ShowDialog();
+            }
+            catch { }
+            
             _RefreshClientsList();
         }
 
@@ -262,8 +267,12 @@ namespace TravelTracking
             if (dgvUsers.CurrentRow == null) return;
 
             int clientID = Convert.ToInt32(dgvUsers.CurrentRow.Cells["Id"].Value);
-            frmAddUpdateClient frm = new frmAddUpdateClient(clientID);
-            frm.ShowDialog();
+            try
+            {
+                frmAddUpdateClient frm = new frmAddUpdateClient(clientID);
+                frm.ShowDialog();
+            }
+            catch { }
             _RefreshClientsList();
         }
 
@@ -309,5 +318,21 @@ namespace TravelTracking
             this.Close();
         }
 
+        private void dgvUsers_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // التأكد إن الضغط كان على صف حقيقي مش على الهيدر
+            if (dgvUsers.CurrentRow == null || dgvUsers.CurrentRow.Index < 0) return;
+
+            int clientID = Convert.ToInt32(dgvUsers.CurrentRow.Cells["Id"].Value);
+
+            try
+            {
+                frmAddUpdateClient frm = new frmAddUpdateClient(clientID);
+                frm.ShowDialog();
+            }
+            catch { }
+
+            _RefreshClientsList();
+        }
     }
 }
