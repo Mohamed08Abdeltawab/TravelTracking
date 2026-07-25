@@ -16,7 +16,7 @@ namespace TravelTracking
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new frmAddUpdateClient(1));
+            Application.Run(new frmListClients());
         }
     }
 }

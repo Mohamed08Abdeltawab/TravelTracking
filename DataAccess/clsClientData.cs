@@ -17,26 +17,19 @@ namespace TravelAgencyDataAccess
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
             {
                 string query = @"
-                    SELECT 
-                        c.Id,
-                        c.FullName,
-                        c.PassportNumber,
-                        co.Name AS CountryName,
-                        c.CountryId,
-                        c.Email,
-                        c.Password,
-                        c.PhoneNumber,
-                        c.Address,
-                        c.Notes,
-                        v.Name AS VisaTypeName,
-                        c.VisaTypeId,
-                        c.ImagePath,
-                        c.CreatedAt,
-                        c.UpdatedAt
-                    FROM Clients c
-                    LEFT JOIN Countries co ON c.CountryId = co.Id
-                    LEFT JOIN VisaTypes v ON c.VisaTypeId = v.Id
-                    ORDER BY c.Id DESC;";
+                                SELECT 
+                                    c.Id,
+                                    c.FullName,
+                                    c.PassportNumber,
+                                    co.Name AS CountryName,
+                                    c.Email,
+                                    c.PhoneNumber,
+                                    v.Name AS VisaTypeName,
+                                    c.CreatedAt
+                                FROM Clients c
+                                LEFT JOIN Countries co ON c.CountryId = co.Id
+                                LEFT JOIN VisaTypes v ON c.VisaTypeId = v.Id
+                                ORDER BY c.Id DESC;";
 
                 using (SQLiteCommand command = new SQLiteCommand(query, connection))
                 {

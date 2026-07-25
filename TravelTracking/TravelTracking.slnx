@@ -3,13 +3,13 @@
     <Platform Name="Any CPU" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="../Buisness/Buisness.csproj">
+  <Project Path="../Buisness/Buisness.csproj" Id="e9e3cf72-6791-4eb3-9cae-d0f25e70063a">
     <Platform Solution="*|x86" Project="x86" />
   </Project>
-  <Project Path="../DataAccess/DataAccess.csproj">
+  <Project Path="../DataAccess/DataAccess.csproj" Id="c259733a-fb20-41eb-8085-29506ae48e2e">
     <Platform Solution="*|x86" Project="x86" />
   </Project>
-  <Project Path="TravelTracking/TravelTracking.csproj">
+  <Project Path="TravelTracking/TravelTracking.csproj" Id="0aae23ee-4063-4562-8367-f4145daa60e9">
     <Platform Solution="*|x86" Project="x86" />
   </Project>
 </Solution>
