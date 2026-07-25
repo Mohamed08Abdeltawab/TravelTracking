@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataAccess;
+using System;
 using System.Data;
 using System.Data.SQLite;
 
@@ -6,11 +7,9 @@ namespace TravelAgencyDataAccess
 {
     public static class clsClientData
     {
-        private static string connectionString = "Data Source=TravelClients.db;Version=3;";
+        private static string connectionString = clsDataAccessSettings.ConnectionString;
 
-        /// <summary>
-        /// جلب جميع العملاء مع أسماء الدول وأنواع التأشيرات للعرض في الـ DataGrid
-        /// </summary>
+
         public static DataTable GetAllClients()
         {
             DataTable dt = new DataTable();
@@ -27,6 +26,8 @@ namespace TravelAgencyDataAccess
                         c.Email,
                         c.Password,
                         c.PhoneNumber,
+                        c.Address,
+                        c.Notes,
                         v.Name AS VisaTypeName,
                         c.VisaTypeId,
                         c.ImagePath,
@@ -44,25 +45,16 @@ namespace TravelAgencyDataAccess
                         connection.Open();
                         using (SQLiteDataReader reader = command.ExecuteReader())
                         {
-                            if (reader.HasRows)
-                            {
-                                dt.Load(reader);
-                            }
+                            if (reader.HasRows) dt.Load(reader);
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        dt = null;
-                    }
+                    catch (Exception ex) { dt = null; }
                 }
             }
 
             return dt;
         }
 
-        /// <summary>
-        /// البحث عن عميل بواسطة الـ ID
-        /// </summary>
         public static bool GetClientByID(
             int id,
             ref string fullName,
@@ -71,6 +63,8 @@ namespace TravelAgencyDataAccess
             ref string email,
             ref string password,
             ref string phoneNumber,
+            ref string address,
+            ref string notes,
             ref int visaTypeId,
             ref string imagePath,
             ref DateTime createdAt,
@@ -101,6 +95,8 @@ namespace TravelAgencyDataAccess
                                 email = reader["Email"] != DBNull.Value ? Convert.ToString(reader["Email"]) : "";
                                 password = reader["Password"] != DBNull.Value ? Convert.ToString(reader["Password"]) : "";
                                 phoneNumber = reader["PhoneNumber"] != DBNull.Value ? Convert.ToString(reader["PhoneNumber"]) : "";
+                                address = reader["Address"] != DBNull.Value ? Convert.ToString(reader["Address"]) : "";
+                                notes = reader["Notes"] != DBNull.Value ? Convert.ToString(reader["Notes"]) : "";
                                 visaTypeId = reader["VisaTypeId"] != DBNull.Value ? Convert.ToInt32(reader["VisaTypeId"]) : -1;
                                 imagePath = reader["ImagePath"] != DBNull.Value ? Convert.ToString(reader["ImagePath"]) : "";
                                 createdAt = Convert.ToDateTime(reader["CreatedAt"]);
@@ -108,19 +104,13 @@ namespace TravelAgencyDataAccess
                             }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        isFound = false;
-                    }
+                    catch (Exception ex) { isFound = false; }
                 }
             }
 
             return isFound;
         }
 
-        /// <summary>
-        /// إضافة عميل جديد وإرجاع الـ ID
-        /// </summary>
         public static int AddNewClient(
             string fullName,
             string passportNumber,
@@ -128,6 +118,8 @@ namespace TravelAgencyDataAccess
             string email,
             string password,
             string phoneNumber,
+            string address,
+            string notes,
             int visaTypeId,
             string imagePath)
         {
@@ -137,9 +129,9 @@ namespace TravelAgencyDataAccess
             {
                 string query = @"
                     INSERT INTO Clients 
-                    (FullName, PassportNumber, CountryId, Email, Password, PhoneNumber, VisaTypeId, ImagePath, CreatedAt, UpdatedAt)
+                    (FullName, PassportNumber, CountryId, Email, Password, PhoneNumber, Address, Notes, VisaTypeId, ImagePath, CreatedAt, UpdatedAt)
                     VALUES 
-                    (@FullName, @PassportNumber, @CountryId, @Email, @Password, @PhoneNumber, @VisaTypeId, @ImagePath, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+                    (@FullName, @PassportNumber, @CountryId, @Email, @Password, @PhoneNumber, @Address, @Notes, @VisaTypeId, @ImagePath, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
                     SELECT last_insert_rowid();";
 
                 using (SQLiteCommand command = new SQLiteCommand(query, connection))
@@ -150,6 +142,8 @@ namespace TravelAgencyDataAccess
                     command.Parameters.AddWithValue("@Email", string.IsNullOrEmpty(email) ? (object)DBNull.Value : email);
                     command.Parameters.AddWithValue("@Password", string.IsNullOrEmpty(password) ? (object)DBNull.Value : password);
                     command.Parameters.AddWithValue("@PhoneNumber", string.IsNullOrEmpty(phoneNumber) ? (object)DBNull.Value : phoneNumber);
+                    command.Parameters.AddWithValue("@Address", string.IsNullOrEmpty(address) ? (object)DBNull.Value : address);
+                    command.Parameters.AddWithValue("@Notes", string.IsNullOrEmpty(notes) ? (object)DBNull.Value : notes);
                     command.Parameters.AddWithValue("@VisaTypeId", visaTypeId > 0 ? (object)visaTypeId : DBNull.Value);
                     command.Parameters.AddWithValue("@ImagePath", string.IsNullOrEmpty(imagePath) ? (object)DBNull.Value : imagePath);
 
@@ -163,19 +157,13 @@ namespace TravelAgencyDataAccess
                             newId = Convert.ToInt32(result);
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        newId = -1;
-                    }
+                    catch (Exception ex) { newId = -1; }
                 }
             }
 
             return newId;
         }
 
-        /// <summary>
-        /// تعديل بيانات عميل قائم مع تحديث تاريخ الـ UpdatedAt
-        /// </summary>
         public static bool UpdateClient(
             int id,
             string fullName,
@@ -184,6 +172,8 @@ namespace TravelAgencyDataAccess
             string email,
             string password,
             string phoneNumber,
+            string address,
+            string notes,
             int visaTypeId,
             string imagePath)
         {
@@ -199,6 +189,8 @@ namespace TravelAgencyDataAccess
                         Email = @Email,
                         Password = @Password,
                         PhoneNumber = @PhoneNumber,
+                        Address = @Address,
+                        Notes = @Notes,
                         VisaTypeId = @VisaTypeId,
                         ImagePath = @ImagePath,
                         UpdatedAt = CURRENT_TIMESTAMP
@@ -213,6 +205,8 @@ namespace TravelAgencyDataAccess
                     command.Parameters.AddWithValue("@Email", string.IsNullOrEmpty(email) ? (object)DBNull.Value : email);
                     command.Parameters.AddWithValue("@Password", string.IsNullOrEmpty(password) ? (object)DBNull.Value : password);
                     command.Parameters.AddWithValue("@PhoneNumber", string.IsNullOrEmpty(phoneNumber) ? (object)DBNull.Value : phoneNumber);
+                    command.Parameters.AddWithValue("@Address", string.IsNullOrEmpty(address) ? (object)DBNull.Value : address);
+                    command.Parameters.AddWithValue("@Notes", string.IsNullOrEmpty(notes) ? (object)DBNull.Value : notes);
                     command.Parameters.AddWithValue("@VisaTypeId", visaTypeId > 0 ? (object)visaTypeId : DBNull.Value);
                     command.Parameters.AddWithValue("@ImagePath", string.IsNullOrEmpty(imagePath) ? (object)DBNull.Value : imagePath);
 
@@ -221,19 +215,13 @@ namespace TravelAgencyDataAccess
                         connection.Open();
                         rowsAffected = command.ExecuteNonQuery();
                     }
-                    catch (Exception ex)
-                    {
-                        return false;
-                    }
+                    catch (Exception ex) { return false; }
                 }
             }
 
             return (rowsAffected > 0);
         }
 
-        /// <summary>
-        /// حذف عميل بواسطة الـ ID
-        /// </summary>
         public static bool DeleteClient(int id)
         {
             int rowsAffected = 0;
@@ -251,10 +239,7 @@ namespace TravelAgencyDataAccess
                         connection.Open();
                         rowsAffected = command.ExecuteNonQuery();
                     }
-                    catch (Exception ex)
-                    {
-                        return false;
-                    }
+                    catch (Exception ex) { return false; }
                 }
             }
 

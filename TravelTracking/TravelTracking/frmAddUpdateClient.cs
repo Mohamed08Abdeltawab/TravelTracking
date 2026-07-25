@@ -1,0 +1,318 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using TravelAgencyBusiness;
+using TravelTracking.Properties;
+
+namespace TravelTracking
+{
+    public partial class frmAddUpdateClient : Form
+    {
+        public enum enMode { AddNew = 0, Update = 1 };
+        private enMode _Mode;
+
+        private int _ClientID = -1;
+        private clsClient _Client;
+
+        public frmAddUpdateClient(int ClientID)
+        {
+            InitializeComponent();
+            _ClientID = ClientID;
+            _Mode = enMode.Update;
+        }
+
+        public frmAddUpdateClient()
+        {
+            InitializeComponent();
+            _Mode = enMode.AddNew;
+        }
+
+        private void _FillCountriesComboBox()
+        {
+            DataTable dtCountries = clsCountry.GetAllCountries();
+
+            if (dtCountries != null && dtCountries.Rows.Count > 0)
+            {
+                cbCountries.DisplayMember = "Name";
+                cbCountries.ValueMember = "Id";
+                cbCountries.DataSource = dtCountries;
+                cbCountries.SelectedIndex = -1; // علشان يفضل فاضي لحد ما المستخدم يختار
+            }
+        }
+
+        private void _FillVisaTypesComboBox()
+        {
+            DataTable dtVisaTypes = clsVisaType.GetAllVisaTypes();
+
+            if (dtVisaTypes != null && dtVisaTypes.Rows.Count > 0)
+            {
+                cbVisaTypes.DisplayMember = "Name";
+                cbVisaTypes.ValueMember = "Id";
+                cbVisaTypes.DataSource = dtVisaTypes;
+                cbVisaTypes.SelectedIndex = -1;
+            }
+        }
+
+        private void _ResetDefaultValues()
+        {
+            // تعبئة القوائم المنسدلة أولاً
+            _FillCountriesComboBox();
+            _FillVisaTypesComboBox();
+
+            if (_Mode == enMode.AddNew)
+            {
+                lblTitle.Text = "إضافة عميل جديد";
+                _Client = new clsClient();
+                lblCreatedAt.Text = DateTime.Now.ToString("dd/MM/yyyy");
+                lblUpdatedAt.Text = DateTime.Now.ToString("dd/MM/yyyy");
+            }
+            else
+            {
+                lblTitle.Text = "تعديل بيانات عميل";
+            }
+
+            lblClientID.Text = "???";
+            txtFullName.Text = "";
+            txtPassportNumber.Text = "";
+            txtEmail.Text = "";
+            txtPassword.Text = "";
+            txtPhoneNumber.Text = "";
+            txtAddress.Text = "";
+            txtNotes.Text = "";
+            cbCountries.SelectedIndex = 0;
+            cbVisaTypes.SelectedIndex = 2;
+            pbClientImage.Image = Resources.users_512;
+            pbClientImage.ImageLocation = null;
+            llRemoveImage.Visible = false;
+            btnSave.Enabled = true;
+        }
+
+        private void _LoadData()
+        {
+            _Client = clsClient.Find(_ClientID);
+
+            if (_Client == null)
+            {
+                MessageBox.Show("لا يوجد عميل يحمل الرقم التعريفى = " + _ClientID, "العميل غير موجود", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                this.Close();
+                return;
+            }
+
+            lblClientID.Text = _Client.ID.ToString();
+            txtFullName.Text = _Client.FullName;
+            txtPassportNumber.Text = _Client.PassportNumber;
+            txtEmail.Text = _Client.Email;
+            txtPassword.Text = _Client.Password;
+            txtPhoneNumber.Text = _Client.PhoneNumber;
+            txtAddress.Text = _Client.Address;
+            txtNotes.Text = _Client.Notes;
+
+            if (_Client.CountryID != -1)
+                cbCountries.SelectedValue = _Client.CountryID;
+
+            if (_Client.VisaTypeID != -1)
+                cbVisaTypes.SelectedValue = _Client.VisaTypeID;
+
+            lblCreatedAt.Text = _Client.CreatedAt.ToString("dd/MM/yyyy HH:mm");
+            lblUpdatedAt.Text = _Client.UpdatedAt.ToString("dd/MM/yyyy HH:mm");
+
+            if (!string.IsNullOrEmpty(_Client.ImagePath) && File.Exists(_Client.ImagePath))
+            {
+                pbClientImage.ImageLocation = _Client.ImagePath;
+                llRemoveImage.Visible = true;
+            }
+            else
+            {
+                pbClientImage.Image = Resources.users_512;
+                llRemoveImage.Visible = false;
+            }
+        }
+
+        private void frmAddUpdateClient_Load(object sender, EventArgs e)
+        {
+            _ResetDefaultValues();
+
+            if (_Mode == enMode.Update)
+                _LoadData();
+        }
+
+        // ================= Validations =================
+
+        private void txtFullName_Validating(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrEmpty(txtFullName.Text.Trim()))
+            {
+                e.Cancel = true;
+                errorProvider1.SetError(txtFullName, "اسم العميل لا يمكن أن يكون فارغاً");
+            }
+            else
+            {
+                errorProvider1.SetError(txtFullName, null);
+            }
+        }
+
+        private void txtPassportNumber_Validating(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrEmpty(txtPassportNumber.Text.Trim()))
+            {
+                e.Cancel = true;
+                errorProvider1.SetError(txtPassportNumber, "رقم الجواز لا يمكن أن يكون فارغاً");
+            }
+            else
+            {
+                errorProvider1.SetError(txtPassportNumber, null);
+            }
+        }
+
+        private void txtEmail_Validating(object sender, CancelEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(txtEmail.Text.Trim()) && !txtEmail.Text.Contains("@"))
+            {
+                e.Cancel = true;
+                errorProvider1.SetError(txtEmail, "صيغة البريد الإلكتروني غير صحيحة");
+            }
+            else
+            {
+                errorProvider1.SetError(txtEmail, null);
+            }
+        }
+
+        // ================= Save & Operations =================
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            if (!this.ValidateChildren())
+            {
+                MessageBox.Show("بعض الحقول غير صالحة! ضع الماوس فوق الأيقونة الحمراء لرؤية الخطأ",
+                    "خطأ في التحقق", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            _Client.FullName = txtFullName.Text.Trim();
+            _Client.PassportNumber = txtPassportNumber.Text.Trim();
+            _Client.Email = txtEmail.Text.Trim();
+            _Client.Password = txtPassword.Text.Trim();
+            _Client.PhoneNumber = txtPhoneNumber.Text.Trim();
+            _Client.Address = txtAddress.Text.Trim();
+            _Client.Notes = txtNotes.Text.Trim();
+
+
+            _Client.CountryID = cbCountries.SelectedValue != null ? Convert.ToInt32(cbCountries.SelectedValue) : -1;
+            _Client.VisaTypeID = cbVisaTypes.SelectedValue != null ? Convert.ToInt32(cbVisaTypes.SelectedValue) : -1;
+
+            _Client.ImagePath = pbClientImage.ImageLocation ?? "";
+
+            if (_Client.Save())
+            {
+                lblClientID.Text = _Client.ID.ToString();
+                _Mode = enMode.Update;
+                lblTitle.Text = "تعديل بيانات عميل";
+                lblUpdatedAt.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+
+                MessageBox.Show("تم حفظ البيانات بنجاح.", "تم الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("حدث خطأ: لم يتم حفظ البيانات بنجاح.", "خطأ في الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnClose_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void llSetImage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            openFileDialog1.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp";
+            openFileDialog1.FilterIndex = 1;
+            openFileDialog1.RestoreDirectory = true;
+
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                string selectedFilePath = openFileDialog1.FileName;
+                pbClientImage.ImageLocation = selectedFilePath;
+                llRemoveImage.Visible = true;
+            }
+        }
+
+        private void llRemoveImage_LinkClicked_1(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            pbClientImage.ImageLocation = null;
+            pbClientImage.Image = Resources.users_512;
+            llRemoveImage.Visible = false;
+        }
+
+        private void txtFullName_Validating_1(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtFullName.Text))
+            {
+                e.Cancel = true;
+                errorProvider1.SetError(txtFullName, "اسم العميل مطلوب ولا يمكن أن يكون فارغاً");
+            }
+            else
+            {
+                errorProvider1.SetError(txtFullName, null);
+            }
+        }
+
+        private void txtPassportNumber_Validating_1(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtPassportNumber.Text))
+            {
+                e.Cancel = true;
+                errorProvider1.SetError(txtPassportNumber, "رقم الجواز مطلوب ولا يمكن أن يكون فارغاً");
+            }
+            else
+            {
+                errorProvider1.SetError(txtPassportNumber, null);
+            }
+        }
+
+        private void txtPhoneNumber_Validating(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtPhoneNumber.Text))
+            {
+                e.Cancel = true;
+                errorProvider1.SetError(txtPhoneNumber, "رقم الهاتف مطلوب");
+            }
+            else
+            {
+                errorProvider1.SetError(txtPhoneNumber, null);
+            }
+        }
+
+        private void cbCountries_Validating(object sender, CancelEventArgs e)
+        {
+            if (cbCountries.SelectedIndex == -1 || cbCountries.SelectedValue == null)
+            {
+                e.Cancel = true;
+                errorProvider1.SetError(cbCountries, "برجاء اختيار الدولة من القائمة");
+            }
+            else
+            {
+                errorProvider1.SetError(cbCountries, null);
+            }
+        }
+
+        private void cbVisaTypes_Validating(object sender, CancelEventArgs e)
+        {
+            if (cbVisaTypes.SelectedIndex == -1 || cbVisaTypes.SelectedValue == null)
+            {
+                e.Cancel = true;
+                errorProvider1.SetError(cbVisaTypes, "برجاء اختيار نوع التأشيرة من القائمة");
+            }
+            else
+            {
+                errorProvider1.SetError(cbVisaTypes, null);
+            }
+        }
+    }
+}

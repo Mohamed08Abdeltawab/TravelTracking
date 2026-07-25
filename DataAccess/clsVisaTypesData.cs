@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataAccess;
+using System;
 using System.Data;
 using System.Data.SQLite;
 
@@ -7,7 +8,7 @@ namespace TravelAgencyDataAccess
     public static class clsVisaTypesData
     {
         // مسار قاعدة البيانات - يمكنك تعديله حسب موقع الملف لديك
-        private static string connectionString = "Data Source=TravelClients.db;Version=3;";
+        private static string connectionString = clsDataAccessSettings.ConnectionString;
 
         /// <summary>
         /// جلب جميع انواع التأشيرات لملء الـ ComboBox أو القوائم
