@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TravelAgencyBusiness;
+using TravelTracking.Global_Classes;
 using TravelTracking.Properties;
 
 namespace TravelTracking
@@ -186,6 +187,55 @@ namespace TravelTracking
 
         // ================= Save & Operations =================
 
+        private bool _HandlePersonImage()
+        {
+            // التحقق مما إذا كانت الصورة قد تغيرت فعلاً
+            if (_Client.ImagePath != pbClientImage.ImageLocation)
+            {
+                // 1. حذف الصورة القديمة من الفولدر إن وجدت
+                if (!string.IsNullOrEmpty(_Client.ImagePath))
+                {
+                    try
+                    {
+                        if (File.Exists(_Client.ImagePath))
+                        {
+                            File.Delete(_Client.ImagePath);
+                        }
+                    }
+                    catch (IOException)
+                    {
+                        // تعذر الحذف بسبب قفل الملف أو تصاريح
+                    }
+                }
+
+                // 2. إذا تم اختيار صورة جديدة
+                if (!string.IsNullOrEmpty(pbClientImage.ImageLocation))
+                {
+                    string SourceImageFile = pbClientImage.ImageLocation;
+
+                    if (clsUtil.CopyImageToProjectImagesFolder(ref SourceImageFile))
+                    {
+                        pbClientImage.ImageLocation = SourceImageFile;
+                        return true;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error Copying Image File", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return false;
+                    }
+                }
+                else
+                {
+                    // إذا قام المستخدم بتفرغ الصورة (مسح الصورة)
+                    _Client.ImagePath = "";
+                }
+            }
+
+            return true;
+        }
+
+
+
         private void btnSave_Click(object sender, EventArgs e)
         {
             if (!this.ValidateChildren())
@@ -195,6 +245,11 @@ namespace TravelTracking
                 return;
             }
 
+            // 1. أولاً: معالجة الصورة (نسخها للمشروع وتحديث pbClientImage.ImageLocation بالمسار الجديد)
+            if (!_HandlePersonImage())
+                return;
+
+            // 2. ثانياً: تعبئة بقية البيانات في الكائن
             _Client.FullName = txtFullName.Text.Trim();
             _Client.PassportNumber = txtPassportNumber.Text.Trim();
             _Client.Email = txtEmail.Text.Trim();
@@ -203,12 +258,13 @@ namespace TravelTracking
             _Client.Address = txtAddress.Text.Trim();
             _Client.Notes = txtNotes.Text.Trim();
 
-
             _Client.CountryID = cbCountries.SelectedValue != null ? Convert.ToInt32(cbCountries.SelectedValue) : -1;
             _Client.VisaTypeID = cbVisaTypes.SelectedValue != null ? Convert.ToInt32(cbVisaTypes.SelectedValue) : -1;
 
+            // 3. ثالثاً: إسناد مسار الصورة النهائي (بعد ما اتنسخت وحصل لها Update)
             _Client.ImagePath = pbClientImage.ImageLocation ?? "";
 
+            // 4. رابعاً: الحفظ في قاعدة البيانات
             if (_Client.Save())
             {
                 lblClientID.Text = _Client.ID.ToString();
@@ -223,6 +279,7 @@ namespace TravelTracking
                 MessageBox.Show("حدث خطأ: لم يتم حفظ البيانات بنجاح.", "خطأ في الحفظ", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private void btnClose_Click(object sender, EventArgs e)
         {

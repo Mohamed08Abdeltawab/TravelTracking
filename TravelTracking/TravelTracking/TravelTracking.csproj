@@ -113,6 +113,7 @@
     <Compile Include="frmAddUpdateClient.Designer.cs">
       <DependentUpon>frmAddUpdateClient.cs</DependentUpon>
     </Compile>
+    <Compile Include="Global Classes\clsUtil.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
@@ -297,6 +298,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\visa32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\client 512 2.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
