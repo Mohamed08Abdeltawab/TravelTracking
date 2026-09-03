@@ -399,7 +399,7 @@ namespace TravelTracking
             string oldFilter = dv.RowFilter;
 
             // تجربة الفلتر الجديد
-            dv.RowFilter = $"Name LIKE '{filterText.Replace("'", "''")}%'";
+            dv.RowFilter = $"Name LIKE '%{filterText.Replace("'", "''")}%'";
 
             if (dv.Count > 0)
             {
@@ -418,20 +418,42 @@ namespace TravelTracking
 
         private void txtCountryFilter_KeyPress(object sender, KeyPressEventArgs e)
         {
+            // 🟢 1. معالجة زر Enter عند الضغط عليه
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                e.Handled = true; // منع صوت الـ Beep الافتراضي للويندوز
+
+                if (cbCountries.DataSource is DataTable dtEnter)
+                {
+                    DataView dvEnter = dtEnter.DefaultView;
+
+                    // إذا كانت هناك نتائج متطابقة، حدد أول عنصر واغلق القائمة
+                    if (dvEnter.Count > 0)
+                    {
+                        cbCountries.SelectedIndex = 0;
+                        cbCountries.DroppedDown = false;
+                        cbCountries.Focus(); // نقل الفوكس للـ ComboBox
+                    }
+                }
+                return; 
+            }
+
+            // السماح بمفاتيح التحكم الأخرى مثل (Backspace, Delete, ...)
             if (char.IsControl(e.KeyChar))
                 return;
 
+            // 🟢 2. كود منع الحروف التي لا تعطي نتائج (الكود الخاص بك)
             string nextText = txtCountryFilter.Text + e.KeyChar;
 
             if (cbCountries.DataSource is DataTable dt)
             {
                 DataView dv = new DataView(dt);
 
-                dv.RowFilter = $"Name LIKE '{nextText.Replace("'", "''")}%'";
+                dv.RowFilter = $"Name LIKE '%{nextText.Replace("'", "''")}%'";
 
                 if (dv.Count == 0)
                 {
-                    e.Handled = true; // يمنع إدخال الحرف
+                    e.Handled = true; // يمنع إدخال الحرف الخاطئ
                 }
             }
         }
